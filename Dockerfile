@@ -4,30 +4,22 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV EXIFTOOL_PATH=/usr/bin/exiftool
 ENV FFMPEG_PATH=/usr/bin/ffmpeg
 
-# Runtime dependency
+# Install runtime dependencies (ffmpeg, exiftool) for media conversion
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
-    exiftool
-
-ARG INSTALL_GIT=false
-RUN if [ "$INSTALL_GIT" = "true" ]; then \
-    apt-get install -y --no-install-recommends \
-    git; \
-    fi
-
-# Cleanup
-RUN rm -rf /var/lib/apt/lists/*
+    exiftool \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
+# Copy repository content
 COPY . /app
-RUN pip --no-cache-dir install \
-    /app/packages/markitdown[all] \
-    /app/packages/markitdown-sample-plugin
 
-# Default USERID and GROUPID
-ARG USERID=nobody
-ARG GROUPID=nogroup
+# Install dependencies and local packages
+RUN pip install --no-cache-dir -r requirements.txt
 
-USER $USERID:$GROUPID
+# Expose port 8080 (Cloud Run standard)
+EXPOSE 8080
 
-ENTRYPOINT [ "markitdown" ]
+# Launch FastAPI using uvicorn
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
