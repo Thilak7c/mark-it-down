@@ -1,4 +1,4 @@
-FROM python:3.13-slim-bullseye
+FROM python:3.12-slim-bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV EXIFTOOL_PATH=/usr/bin/exiftool
@@ -18,8 +18,8 @@ COPY . /app
 # Install dependencies and local packages
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port 8080 (Cloud Run standard)
+# Expose port 8080
 EXPOSE 8080
 
-# Launch FastAPI using uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Launch FastAPI using shell form to support $PORT
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}
