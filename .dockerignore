@@ -1,2 +1,8 @@
-*
-!packages/
+.git
+.github
+.devcontainer
+__pycache__
+*.pyc
+.venv
+venv
+.env
